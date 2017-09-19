@@ -19,7 +19,7 @@ class MYPROJECT_API AGun : public AActor
 	class USceneComponent* FP_MuzzleLocation;
 
 	/** Projectile class to spawn */
-	UPROPERTY(EditDefaultsOnly, Category = Weapon)
+	UPROPERTY(EditDefaultsOnly, Category = Projectile)
 	TSubclassOf<class AProjectile> ProjectileClass;
 
 public:	
@@ -40,7 +40,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 	class UAnimInstance* AnimInstance;
 
-protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
