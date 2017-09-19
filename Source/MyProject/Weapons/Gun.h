@@ -19,9 +19,8 @@ class MYPROJECT_API AGun : public AActor
 	class USceneComponent* FP_MuzzleLocation;
 
 	/** Projectile class to spawn */
-	UPROPERTY(EditDefaultsOnly, Category = Projectile)
+	UPROPERTY(EditDefaultsOnly, Category = Weapon)
 	TSubclassOf<class AProjectile> ProjectileClass;
-
 
 public:	
 	// Sets default values for this actor's properties

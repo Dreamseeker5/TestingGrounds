@@ -18,6 +18,8 @@ class AFirstPersonCharacter : public ACharacter
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FirstPersonCameraComponent;
 
+	class AGun* Gun;
+
 public:
 	AFirstPersonCharacter();
 
@@ -36,6 +38,10 @@ public:
 	/** Gun muzzle's offset from the characters location */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Gameplay)
 	FVector GunOffset;
+
+	UPROPERTY(EditDefaultsOnly, Category = Weapon)
+	TSubclassOf<AGun> GunBlueprint;
+
 
 protected:
 
