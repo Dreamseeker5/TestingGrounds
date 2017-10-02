@@ -16,9 +16,7 @@ ATile::ATile()
 // Called when the game starts or when spawned
 void ATile::BeginPlay()
 {
-	Super::BeginPlay();
-	
-	CastSphere(GetActorLocation(), 300);
+	Super::BeginPlay();	
 }
 
 // Called every frame
@@ -28,7 +26,26 @@ void ATile::Tick(float DeltaTime)
 
 }
 
-void ATile::PlaceActor(TSubclassOf<AActor> ToSpawn, int32 MinSpawn, int32 MaxSpawn)
+void ATile::PlaceActors(TSubclassOf<AActor> ToSpawn, int32 MinSpawn, int32 MaxSpawn, float radius)
+{
+
+	//The random number of times to spawn a specific actor
+	int NumberToSpawn = FMath::RandRange(MinSpawn, MaxSpawn);
+
+	for (size_t i = 0; i < NumberToSpawn; i++)
+	{
+		//Spawn the actor only when a clear position (no overlaps) is found
+		FVector SpawnPoint;
+		bool clearPositionFound	= FindEmptyLocation(SpawnPoint, radius);
+		if(clearPositionFound)
+		{
+			PlaceActor(ToSpawn, SpawnPoint);
+		}
+	}
+
+}
+
+bool ATile::FindEmptyLocation(FVector& OutLocation, float radius)
 {
 	//Created a Box instance to randomly spawn actors into it
 
@@ -38,42 +55,55 @@ void ATile::PlaceActor(TSubclassOf<AActor> ToSpawn, int32 MinSpawn, int32 MaxSpa
 
 	FBox Bounds(Min, Max);
 
-	//The random number to spawn a specific actor
-	int NumberToSpawn = FMath::RandRange(MinSpawn, MaxSpawn);
-
-	for (size_t i = 0; i < NumberToSpawn; i++)
+	//Try to find a clear point to spawn in a determined amount of times
+	const int MAX_ATTEMPTS = 100;
+	for(size_t i = 0; i < MAX_ATTEMPTS; i++ )
 	{
-		//Spawn a point inside the box instance
-		FVector SpawnPoint = FMath::RandPointInBox(Bounds);
-		
-		//Spawn the actor
-		AActor* Spawned = GetWorld()->SpawnActor<AActor>(ToSpawn);
-		//Set the actor's location
-		Spawned->SetActorRelativeLocation(SpawnPoint);
-		//Attach the new actor to the tile instance
-		Spawned->AttachToActor(this, FAttachmentTransformRules(EAttachmentRule::KeepRelative, false));
-		
-		/*UE_LOG(LogTemp, Warning, TEXT("Spawn point: %s"), *SpawnPoint.ToString());*/
+		//Generate a random point which potentially serves as a spawn position 
+		FVector PotentialPoint = FMath::RandPointInBox(Bounds);
 
+		//Test every randomly generated potential point until one is not overlapping with other object
+		if (CanSpawnAtLocation(PotentialPoint, radius))
+		{
+			OutLocation = PotentialPoint;
+			return true;
+		}
 	}
+
+	return false;
 
 }
 
-bool ATile::CastSphere(FVector location, float radius)
+void ATile::PlaceActor(TSubclassOf<AActor> ToSpawn, FVector SpawnPoint)
+{
+	//Spawn the actor
+	AActor* Spawned = GetWorld()->SpawnActor<AActor>(ToSpawn);
+	//Set the actor's location
+	Spawned->SetActorRelativeLocation(SpawnPoint);
+	//Attach the new actor to the tile instance
+	Spawned->AttachToActor(this, FAttachmentTransformRules(EAttachmentRule::KeepRelative, false));
+
+}
+
+bool ATile::CanSpawnAtLocation(FVector location, float radius)
 {
 
 	FHitResult HitResult;
+	
+	//Cast the position from local to global transforms
+	FVector globalLocation = ActorToWorld().TransformPosition(location);
+
 	bool HasHit = GetWorld()->SweepSingleByChannel(
 		HitResult,
-		location,
-		location,
+		globalLocation,
+		globalLocation,
 		FQuat::Identity,
 		ECollisionChannel::ECC_GameTraceChannel2,
 		FCollisionShape::MakeSphere(radius)
 	);
 
 	FColor ColorResult = HasHit ? FColor::Red : FColor::Green;
-	DrawDebugCapsule(GetWorld(), location,0, radius, FQuat::Identity, ColorResult, true, 100);
+	DrawDebugCapsule(GetWorld(), globalLocation,0, radius, FQuat::Identity, ColorResult, true, 100);
 	 
-	return HasHit;
+	return !HasHit;
 }
