@@ -26,7 +26,7 @@ void ATile::Tick(float DeltaTime)
 
 }
 
-void ATile::PlaceActors(TSubclassOf<AActor> ToSpawn, int32 MinSpawn, int32 MaxSpawn, float radius)
+void ATile::PlaceActors(TSubclassOf<AActor> ToSpawn, int32 MinSpawn, int32 MaxSpawn, float radius, float MinScale, float MaxScale)
 {
 
 	//The random number of times to spawn a specific actor
@@ -36,10 +36,17 @@ void ATile::PlaceActors(TSubclassOf<AActor> ToSpawn, int32 MinSpawn, int32 MaxSp
 	{
 		//Spawn the actor only when a clear position (no overlaps) is found
 		FVector SpawnPoint;
-		bool clearPositionFound	= FindEmptyLocation(SpawnPoint, radius);
+
+			//Generate random number to increase the objects' size
+			float RandomScale = FMath::RandRange(MinScale, MaxScale);
+
+		bool clearPositionFound	= FindEmptyLocation(SpawnPoint, radius * RandomScale);
 		if(clearPositionFound)
 		{
-			PlaceActor(ToSpawn, SpawnPoint);
+			//Generate a random number to set the rotation of the spawned object
+			float RandomRotation = FMath::RandRange(-180.f, 180.f);
+
+			PlaceActor(ToSpawn, SpawnPoint, RandomRotation, RandomScale);
 		}
 	}
 
@@ -74,7 +81,7 @@ bool ATile::FindEmptyLocation(FVector& OutLocation, float radius)
 
 }
 
-void ATile::PlaceActor(TSubclassOf<AActor> ToSpawn, FVector SpawnPoint)
+void ATile::PlaceActor(TSubclassOf<AActor> ToSpawn, FVector SpawnPoint, float Rotation, float Scale)
 {
 	//Spawn the actor
 	AActor* Spawned = GetWorld()->SpawnActor<AActor>(ToSpawn);
@@ -82,6 +89,10 @@ void ATile::PlaceActor(TSubclassOf<AActor> ToSpawn, FVector SpawnPoint)
 	Spawned->SetActorRelativeLocation(SpawnPoint);
 	//Attach the new actor to the tile instance
 	Spawned->AttachToActor(this, FAttachmentTransformRules(EAttachmentRule::KeepRelative, false));
+	//Set the random rotation to the spawned object
+	Spawned->SetActorRotation(FRotator(0, Rotation, 0));
+	//Set the random scale to the spawned object
+	Spawned->SetActorScale3D(FVector(Scale));
 
 }
 
@@ -102,8 +113,8 @@ bool ATile::CanSpawnAtLocation(FVector location, float radius)
 		FCollisionShape::MakeSphere(radius)
 	);
 
-	FColor ColorResult = HasHit ? FColor::Red : FColor::Green;
-	DrawDebugCapsule(GetWorld(), globalLocation,0, radius, FQuat::Identity, ColorResult, true, 100);
+	/*FColor ColorResult = HasHit ? FColor::Red : FColor::Green;
+	DrawDebugCapsule(GetWorld(), globalLocation,0, radius, FQuat::Identity, ColorResult, true, 100);*/
 	 
 	return !HasHit;
 }
