@@ -5,6 +5,8 @@
 #include "GameFramework/Actor.h"
 #include "Tile.generated.h"
 
+class UActorPoolComponent;
+
 UCLASS()
 class MYPROJECT_API ATile : public AActor
 {
@@ -23,6 +25,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Setup")
 	void PlaceActors(TSubclassOf<AActor> ToSpawn, int32 MinSpawn = 1, int32 MaxSpawn = 1, float radius = 500, float MinScale = 1, float MaxScale = 1);
 
+	UFUNCTION(BlueprintCallable, Category = "Pool")
+		void SetPool(UActorPoolComponent* InPool);
+
+
 private:
 
 	bool FindEmptyLocation(FVector& OutLocation, float radius);
@@ -30,6 +36,8 @@ private:
 	void PlaceActor(TSubclassOf<AActor> ToSpawn, FVector SpawnPoint, float Rotation, float Scale);
 
 	bool CanSpawnAtLocation(FVector location, float radius);
+
+	UActorPoolComponent* Pool;
 
 	
 	

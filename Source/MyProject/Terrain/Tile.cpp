@@ -3,6 +3,7 @@
 #include "MyProject.h"
 #include "Tile.h"
 #include "DrawDebugHelpers.h"
+#include "ActorPoolComponent.h"
 
 
 // Sets default values
@@ -117,4 +118,10 @@ bool ATile::CanSpawnAtLocation(FVector location, float radius)
 	DrawDebugCapsule(GetWorld(), globalLocation,0, radius, FQuat::Identity, ColorResult, true, 100);*/
 	 
 	return !HasHit;
+}
+
+void ATile::SetPool(UActorPoolComponent* InPool)
+{
+	UE_LOG(LogTemp, Warning, TEXT("%s setting pool %s"), *(this->GetName()), *(InPool->GetName()));
+	Pool = InPool;
 }
