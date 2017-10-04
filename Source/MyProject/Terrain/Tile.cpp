@@ -12,6 +12,9 @@ ATile::ATile()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	//Initialize the values for the nearest and farthest points in the spawning box
+	MinExtent = FVector(0, -2000, 0);
+	MaxExtent = FVector(4000, 2000, 0);
 }
 
 // Called when the game starts or when spawned
@@ -27,13 +30,15 @@ void ATile::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 }
 
-
 // Called every frame
 void ATile::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
 }
+
+
+
 
 void ATile::PlaceActors(TSubclassOf<AActor> ToSpawn, int32 MinSpawn, int32 MaxSpawn, float radius, float MinScale, float MaxScale)
 {
@@ -64,12 +69,7 @@ void ATile::PlaceActors(TSubclassOf<AActor> ToSpawn, int32 MinSpawn, int32 MaxSp
 bool ATile::FindEmptyLocation(FVector& OutLocation, float radius)
 {
 	//Created a Box instance to randomly spawn actors into it
-
-		//Nearest and farthest box's vertices  
-		FVector Min(0, -2000, 0);
-		FVector Max(4000, 2000, 0);
-
-	FBox Bounds(Min, Max);
+	FBox Bounds(MinExtent, MaxExtent);
 
 	//Try to find a clear point to spawn in a determined amount of times
 	const int MAX_ATTEMPTS = 100;
@@ -141,8 +141,10 @@ void ATile::PositionNavMeshBoundsVolume()
 	NavMeshBoundsVolume = Pool->CheckOut();
 	if (NavMeshBoundsVolume == nullptr)
 	{
-		UE_LOG(LogTemp, Error, TEXT("No actors in pool!"));
+		UE_LOG(LogTemp, Error, TEXT("[%s] No actors in pool!"), *GetName());
 		return;
 	}
+	UE_LOG(LogTemp, Error, TEXT("[%s] Checked Out: [%s]"), *GetName(), *(NavMeshBoundsVolume->GetName()));
+
 	NavMeshBoundsVolume->SetActorLocation(GetActorLocation());
 }
