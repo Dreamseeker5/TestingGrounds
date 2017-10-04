@@ -20,6 +20,14 @@ void ATile::BeginPlay()
 	Super::BeginPlay();	
 }
 
+void ATile::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	//UE_LOG(LogTemp, Warning, TEXT("[%s] EndPlay"), *GetName());
+	Pool->Return(NavMeshBoundsVolume);
+
+}
+
+
 // Called every frame
 void ATile::Tick(float DeltaTime)
 {
@@ -122,6 +130,19 @@ bool ATile::CanSpawnAtLocation(FVector location, float radius)
 
 void ATile::SetPool(UActorPoolComponent* InPool)
 {
-	UE_LOG(LogTemp, Warning, TEXT("%s setting pool %s"), *(this->GetName()), *(InPool->GetName()));
+	UE_LOG(LogTemp, Warning, TEXT("[%s] setting pool: %s"), *(this->GetName()), *(InPool->GetName()));
 	Pool = InPool;
+
+	PositionNavMeshBoundsVolume();
+}
+
+void ATile::PositionNavMeshBoundsVolume()
+{
+	NavMeshBoundsVolume = Pool->CheckOut();
+	if (NavMeshBoundsVolume == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("No actors in pool!"));
+		return;
+	}
+	NavMeshBoundsVolume->SetActorLocation(GetActorLocation());
 }
