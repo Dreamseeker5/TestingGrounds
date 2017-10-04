@@ -28,13 +28,16 @@ public:
 	void PlaceActors(TSubclassOf<AActor> ToSpawn, int32 MinSpawn = 1, int32 MaxSpawn = 1, float radius = 500, float MinScale = 1, float MaxScale = 1);
 
 	UFUNCTION(BlueprintCallable, Category = "Pool")
-		void SetPool(UActorPoolComponent* InPool);
+	void SetPool(UActorPoolComponent* InPool);
 
+protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Spawning")
 	FVector MinExtent;
 	UPROPERTY(EditDefaultsOnly, Category = "Spawning")
 	FVector MaxExtent;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Navigation")
+	FVector NavigationBoundsOffset;
 
 private:
 
