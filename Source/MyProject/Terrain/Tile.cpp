@@ -44,28 +44,40 @@ void ATile::Tick(float DeltaTime)
 
 void ATile::PlaceActors(TSubclassOf<AActor> ToSpawn, int32 MinSpawn, int32 MaxSpawn, float radius, float MinScale, float MaxScale)
 {
+	TArray<FSpawnPosition> spawnPositions = RandomSpawnPositions( MinSpawn, MaxSpawn, radius, MinScale, MaxScale);
+
+	for (FSpawnPosition spawnPosition : spawnPositions)
+	{
+		PlaceActor(ToSpawn, spawnPosition); 
+	}
+
+}
+
+TArray<FSpawnPosition> ATile::RandomSpawnPositions(int32 MinSpawn, int32 MaxSpawn, float radius, float MinScale, float MaxScale)
+{
+	TArray<FSpawnPosition> spawnPositions;
 
 	//The random number of times to spawn a specific actor
 	int NumberToSpawn = FMath::RandRange(MinSpawn, MaxSpawn);
 
 	for (size_t i = 0; i < NumberToSpawn; i++)
 	{
-		//Spawn the actor only when a clear position (no overlaps) is found
-		FVector SpawnPoint;
+		FSpawnPosition spawnPosition;
 
-			//Generate random number to increase the objects' size
-			float RandomScale = FMath::RandRange(MinScale, MaxScale);
+		//Generate random number to increase the objects' size
+		spawnPosition.scale = FMath::RandRange(MinScale, MaxScale);
 
-		bool clearPositionFound	= FindEmptyLocation(SpawnPoint, radius * RandomScale);
-		if(clearPositionFound)
+		bool clearPositionFound = FindEmptyLocation(spawnPosition.location, radius * spawnPosition.scale);
+		if (clearPositionFound)
 		{
 			//Generate a random number to set the rotation of the spawned object
-			float RandomRotation = FMath::RandRange(-180.f, 180.f);
+			spawnPosition.rotation = FMath::RandRange(-180.f, 180.f);
 
-			PlaceActor(ToSpawn, SpawnPoint, RandomRotation, RandomScale);
+			spawnPositions.Add(spawnPosition);
 		}
 	}
 
+	return spawnPositions;
 }
 
 bool ATile::FindEmptyLocation(FVector& OutLocation, float radius)
@@ -92,18 +104,18 @@ bool ATile::FindEmptyLocation(FVector& OutLocation, float radius)
 
 }
 
-void ATile::PlaceActor(TSubclassOf<AActor> ToSpawn, FVector SpawnPoint, float Rotation, float Scale)
+void ATile::PlaceActor(TSubclassOf<AActor> ToSpawn, FSpawnPosition spawnPosition)
 {
 	//Spawn the actor
 	AActor* Spawned = GetWorld()->SpawnActor<AActor>(ToSpawn);
 	//Set the actor's location
-	Spawned->SetActorRelativeLocation(SpawnPoint);
+	Spawned->SetActorRelativeLocation(spawnPosition.location);
 	//Attach the new actor to the tile instance
 	Spawned->AttachToActor(this, FAttachmentTransformRules(EAttachmentRule::KeepRelative, false));
 	//Set the random rotation to the spawned object
-	Spawned->SetActorRotation(FRotator(0, Rotation, 0));
+	Spawned->SetActorRotation(FRotator(0, spawnPosition.rotation, 0));
 	//Set the random scale to the spawned object
-	Spawned->SetActorScale3D(FVector(Scale));
+	Spawned->SetActorScale3D(FVector(spawnPosition.scale));
 
 }
 
