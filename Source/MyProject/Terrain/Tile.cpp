@@ -44,29 +44,17 @@ void ATile::Tick(float DeltaTime)
 
 void ATile::PlaceActors(TSubclassOf<AActor> ToSpawn, int32 MinSpawn, int32 MaxSpawn, float radius, float MinScale, float MaxScale)
 {
-	TArray<FSpawnPosition> spawnPositions = RandomSpawnPositions( MinSpawn, MaxSpawn, radius, MinScale, MaxScale);
-
-	for (FSpawnPosition spawnPosition : spawnPositions)
-	{
-		PlaceActor(ToSpawn, spawnPosition); 
-	}
-
+	RandomlyPlaceActors(ToSpawn, MinSpawn, MaxSpawn, radius, MinScale, MaxScale);
 }
 
-void ATile::PlaceAIPawns(TSubclassOf<AActor> ToSpawn, int32 MinSpawn, int32 MaxSpawn, float radius)
+void ATile::PlaceAIPawns(TSubclassOf<APawn> ToSpawn, int32 MinSpawn, int32 MaxSpawn, float radius)
 {
-	TArray<FSpawnPosition> spawnPositions = RandomSpawnPositions(MinSpawn, MaxSpawn, radius, 1, 1);
-
-	for (FSpawnPosition spawnPosition : spawnPositions)
-	{
-		PlaceAIPawn(ToSpawn, spawnPosition);
-	}
+	RandomlyPlaceActors(ToSpawn, MinSpawn, MaxSpawn, radius, 1, 1);
 }
 
-TArray<FSpawnPosition> ATile::RandomSpawnPositions(int32 MinSpawn, int32 MaxSpawn, float radius, float MinScale, float MaxScale)
+template<class T>
+void ATile::RandomlyPlaceActors(TSubclassOf<T> ToSpawn, int32 MinSpawn, int32 MaxSpawn, float radius, float MinScale, float MaxScale)
 {
-	TArray<FSpawnPosition> spawnPositions;
-
 	//The random number of times to spawn a specific actor
 	int NumberToSpawn = FMath::RandRange(MinSpawn, MaxSpawn);
 
@@ -83,11 +71,9 @@ TArray<FSpawnPosition> ATile::RandomSpawnPositions(int32 MinSpawn, int32 MaxSpaw
 			//Generate a random number to set the rotation of the spawned object
 			spawnPosition.rotation = FMath::RandRange(-180.f, 180.f);
 
-			spawnPositions.Add(spawnPosition);
+			PlaceActor(ToSpawn, spawnPosition);
 		}
 	}
-
-	return spawnPositions;
 }
 
 bool ATile::FindEmptyLocation(FVector& OutLocation, float radius)
@@ -118,31 +104,38 @@ void ATile::PlaceActor(TSubclassOf<AActor> ToSpawn, FSpawnPosition spawnPosition
 {
 	//Spawn the actor
 	AActor* Spawned = GetWorld()->SpawnActor<AActor>(ToSpawn);
-	//Set the actor's location
-	Spawned->SetActorRelativeLocation(spawnPosition.location);
-	//Attach the new actor to the tile instance
-	Spawned->AttachToActor(this, FAttachmentTransformRules(EAttachmentRule::KeepRelative, false));
-	//Set the random rotation to the spawned object
-	Spawned->SetActorRotation(FRotator(0, spawnPosition.rotation, 0));
-	//Set the random scale to the spawned object
-	Spawned->SetActorScale3D(FVector(spawnPosition.scale));
 
+	if (Spawned)
+	{
+		//Set the actor's location
+		Spawned->SetActorRelativeLocation(spawnPosition.location);
+		//Attach the new actor to the tile instance
+		Spawned->AttachToActor(this, FAttachmentTransformRules(EAttachmentRule::KeepRelative, false));
+		//Set the random rotation to the spawned object
+		Spawned->SetActorRotation(FRotator(0, spawnPosition.rotation, 0));
+		//Set the random scale to the spawned object
+		Spawned->SetActorScale3D(FVector(spawnPosition.scale));
+	}
 }
 
-void ATile::PlaceAIPawn(TSubclassOf<AActor> ToSpawn, FSpawnPosition spawnPosition)
+void ATile::PlaceActor(TSubclassOf<APawn> ToSpawn, FSpawnPosition spawnPosition)
 {
 	//Spawn the actor
 	APawn* Spawned = GetWorld()->SpawnActor<APawn>(ToSpawn);
-	//Set the actor's location
-	Spawned->SetActorRelativeLocation(spawnPosition.location);
-	//Attach the new actor to the tile instance
-	Spawned->AttachToActor(this, FAttachmentTransformRules(EAttachmentRule::KeepRelative, false));
-	//Set the random rotation to the spawned object
-	Spawned->SetActorRotation(FRotator(0, spawnPosition.rotation, 0));
-	//Set the random scale to the spawned object
-	Spawned->SetActorScale3D(FVector(spawnPosition.scale));
-	Spawned->SpawnDefaultController();
-	Spawned->Tags.Add(FName("Enemy"));
+
+	if (Spawned)
+	{
+		//Set the actor's location
+		Spawned->SetActorRelativeLocation(spawnPosition.location);
+		//Attach the new actor to the tile instance
+		Spawned->AttachToActor(this, FAttachmentTransformRules(EAttachmentRule::KeepRelative, false));
+		//Set the random rotation to the spawned object
+		Spawned->SetActorRotation(FRotator(0, spawnPosition.rotation, 0));
+		//Set the random scale to the spawned object
+		Spawned->SetActorScale3D(FVector(spawnPosition.scale));
+		Spawned->SpawnDefaultController();
+		Spawned->Tags.Add(FName("Enemy"));
+	}
 }
 
 
