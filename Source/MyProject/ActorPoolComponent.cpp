@@ -16,7 +16,6 @@ UActorPoolComponent::UActorPoolComponent()
 
 AActor* UActorPoolComponent::CheckOut()
 {
-	//UE_LOG(LogTemp, Warning, TEXT("[%s] Checkout!"), *GetName());
 	if (Pool.Num()==0)
 	{
 		return nullptr;

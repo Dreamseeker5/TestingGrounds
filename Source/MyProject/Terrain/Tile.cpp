@@ -27,8 +27,10 @@ void ATile::BeginPlay()
 
 void ATile::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-	//UE_LOG(LogTemp, Warning, TEXT("[%s] EndPlay"), *GetName());
-	Pool->Return(NavMeshBoundsVolume);
+	if (Pool != nullptr && NavMeshBoundsVolume != nullptr)
+	{
+		Pool->Return(NavMeshBoundsVolume);
+	}
 
 }
 
@@ -104,7 +106,6 @@ void ATile::PlaceActor(TSubclassOf<AActor> ToSpawn, FSpawnPosition spawnPosition
 {
 	//Spawn the actor
 	AActor* Spawned = GetWorld()->SpawnActor<AActor>(ToSpawn);
-
 	if (Spawned)
 	{
 		//Set the actor's location
@@ -121,18 +122,13 @@ void ATile::PlaceActor(TSubclassOf<AActor> ToSpawn, FSpawnPosition spawnPosition
 void ATile::PlaceActor(TSubclassOf<APawn> ToSpawn, FSpawnPosition spawnPosition)
 {
 	//Spawn the actor
-	APawn* Spawned = GetWorld()->SpawnActor<APawn>(ToSpawn);
+	FRotator rotation = FRotator(0, spawnPosition.rotation, 0);
+	APawn* Spawned = GetWorld()->SpawnActor<APawn>(ToSpawn, spawnPosition.location, rotation);
 
 	if (Spawned)
 	{
-		//Set the actor's location
-		Spawned->SetActorRelativeLocation(spawnPosition.location);
 		//Attach the new actor to the tile instance
 		Spawned->AttachToActor(this, FAttachmentTransformRules(EAttachmentRule::KeepRelative, false));
-		//Set the random rotation to the spawned object
-		Spawned->SetActorRotation(FRotator(0, spawnPosition.rotation, 0));
-		//Set the random scale to the spawned object
-		Spawned->SetActorScale3D(FVector(spawnPosition.scale));
 		Spawned->SpawnDefaultController();
 		Spawned->Tags.Add(FName("Enemy"));
 	}
