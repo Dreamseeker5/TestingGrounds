@@ -1,0 +1,33 @@
+- Crear varios tipos de armas como pistola, shotgun, grenade launcher...
+ * Definir en la clase Gun cpp variables genéricas como precision, cadencia de disparo, daño.
+ * Las nuevas armas heredarlas de la clase gun cpp y modificarles las variables mencionadas anteriormente
+ a placer.
+
+- Permitir que el jugador cambie de armas.
+ * Como cambiar las animaciones según el tipo de arma?.
+ * Agregar los inputs para cambiar entre las distintas armas.
+
+- Distintos tipos de municiones.
+ * Cada tipo de municion altera valores del personaje que los recibe (velocidad, daño progresivo estilo envenenamiento...)
+ * Obtener dichas municiones del escenario.
+
+- Projectil sale disparado de una posición extraña con respecto al arma.
+ * Disimular con efectos de particulas puede ser una buena opción.
+
+-Efecto de partículas al disparar
+ * Distintos efectos según el tipo de arma.
+
+- Transformar a código en c++ algunas funciones y lógicas de BP.
+ * La estructura para el score (lectura 305 Keeping Score)
+
+- Darle más velocidad al proyectil
+
+- Producir las animaciones para las muertes de forma aleatoria.
+
+- Hacer desaparecer la capsula invisible que permanece aún despues de que el jugador muere.
+
+- Que la AI deje de disparar después de que el jugador muera.
+
+- AI capaz de visualizar cadaveres y responder coherentemente a este evento.
+
+-AI trota hacia el jugador cuando lo ve y luego pasa a caminar y disparar cuando se encuentra a una distancia específica.
